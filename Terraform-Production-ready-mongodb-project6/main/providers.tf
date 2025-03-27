@@ -9,6 +9,7 @@ terraform {
 
 provider "aws" {
   # Configuration options
-  region = var.REGION
-  profile = "myTerraform"
+  region  = var.REGION
+  # Removing the profile configuration to use default credentials
+  # profile = "myTerraform"
 }

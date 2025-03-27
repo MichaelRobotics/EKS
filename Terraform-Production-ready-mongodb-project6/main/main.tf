@@ -1,4 +1,3 @@
-
 # creating VPC
 
 module "VPC" {
@@ -80,4 +79,47 @@ module "ASG" {
   NGINX_TG_ARN   = module.LB.NGINX_TG_ARN
 
 
+}
+
+module "SNS" {
+  source       = "../module/SNS"
+  PROJECT_NAME = var.PROJECT_NAME
+  REGION       = var.REGION
+}
+
+module "CloudTrail" {
+  source        = "../module/CloudTrail"
+  PROJECT_NAME  = var.PROJECT_NAME
+  REGION        = var.REGION
+  SNS_TOPIC_ARN = module.SNS.SNS_TOPIC_ARN
+}
+
+module "Monitoring" {
+  source       = "../module/Monitoring"
+  PROJECT_NAME = var.PROJECT_NAME
+  REGION       = var.REGION
+  VPC_ID       = module.VPC.VPC_ID
+  MONGOS_1_ID  = module.EC2.MONGOS_1_ID
+  MONGOS_2_ID  = module.EC2.MONGOS_2_ID
+  # Add other instance IDs as needed
+}
+
+module "Backup" {
+  source       = "../module/Backup"
+  PROJECT_NAME = var.PROJECT_NAME
+  REGION       = var.REGION
+  # Instance ARNs would need to be exported from EC2 module
+  INSTANCE_ARNS = [
+    module.EC2.SHARD_1_ARN,
+    module.EC2.SHARD_2_ARN,
+    module.EC2.SHARD_3_ARN,
+    # Other instances
+  ]
+}
+
+module "Security" {
+  source       = "../module/Security"
+  PROJECT_NAME = var.PROJECT_NAME
+  REGION       = var.REGION
+  VPC_ID       = module.VPC.VPC_ID
 }

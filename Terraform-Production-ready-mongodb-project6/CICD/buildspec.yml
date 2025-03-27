@@ -4,12 +4,15 @@ phases:
     commands:
       - cd CICD
       - chmod +x aws-config.sh install-terraform.sh
-  
+      - pip install pre-commit terratest
   pre_build:
     commands:
       - ./aws-config.sh
       - ./install-terraform.sh
-  
+      - echo "Running pre-commit hooks"
+      - pre-commit run --all-files
+      - echo "Running Terraform format checks"
+      - cd ../main && terraform fmt -check
   build:
     commands:
       - cd ..
